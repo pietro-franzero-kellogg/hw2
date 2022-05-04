@@ -69,14 +69,102 @@
 
 # Delete existing data, so you'll start fresh each time this script is run.
 # Use `Model.destroy_all` code.
-# TODO!
+Studio.destroy_all
+Movie.destroy_all
+Actor.destroy_all
+Role.destroy_all
 
 # Generate models and tables, according to the domain model.
-# TODO!
+
+# rails generate model Studio
+# rails generate model Movie
+# rails generate model Actor
+# rails generate model Role
+
+# rails db:migrate
 
 # Insert data into the database that reflects the sample data shown above.
 # Do not use hard-coded foreign key IDs.
-# TODO!
+studios = Studio.insert_all(
+    [
+        {name: "Warner Bros."}
+    ]
+)
+# puts Studio.all.inspect
+
+movies = [
+    {title: "Batman Begins", 
+    year_released: 2005, 
+    rated: "PG-13", 
+    studio: "Warner Bros."},
+
+    {title: "The Dark Knight", 
+    year_released: 2008, 
+    rated: "PG-13", 
+    studio: "Warner Bros."},
+
+    {title: "The Dark Knight Rises", 
+    year_released: 2012, 
+    rated: "PG-13", 
+    studio: "Warner Bros."}
+]
+
+for movie in movies
+    studio = Studio.find_by(name: movie[:studio])
+    movie[:studio_id] = studio[:id]
+    movie.delete(:studio)
+end
+
+movies = Movie.insert_all(movies)
+# puts Movie.all.inspect
+
+actors = Actor.insert_all(
+    [
+        {name: "Christian Bale"},
+        {name: "Michael Caine"},
+        {name: "Liam Neeson"},
+        {name: "Katie Holmes"},
+        {name: "Gary Oldman"},
+        {name: "Heath Ledger"},
+        {name: "Aaron Eckhart"},
+        {name: "Maggie Gyllenhaal"},
+        {name: "Tom Hardy"},
+        {name: "Joseph Gordon-Levitt"},
+        {name: "Anne Hathaway"}
+    ]
+)
+# puts Actor.all.inspect
+
+roles = [
+    {title: "Batman Begins", actor: "Christian Bale", character_name: "Bruce Wayne"},
+    {title: "Batman Begins", actor: "Michael Caine", character_name: "Alfred"},
+    {title: "Batman Begins", actor: "Liam Neeson", character_name: "Ra's Al Ghul"},
+    {title: "Batman Begins", actor: "Katie Holmes", character_name: "Rachel Dawes"},
+    {title: "Batman Begins", actor: "Gary Oldman", character_name: "Commissioner Gordon"},
+    {title: "The Dark Knight", actor: "Christian Bale", character_name: "Bruce Wayne"},
+    {title: "The Dark Knight", actor: "Heath Ledger", character_name: "Joker"},
+    {title: "The Dark Knight", actor: "Aaron Eckhart", character_name: "Harvey Dent"},
+    {title: "The Dark Knight", actor: "Michael Caine", character_name: "Alfred"},
+    {title: "The Dark Knight", actor: "Maggie Gyllenhaal", character_name: "Rachel Dawes"},
+    {title: "The Dark Knight Rises", actor: "Christian Bale", character_name: "Bruce Wayne"},
+    {title: "The Dark Knight Rises", actor: "Gary Oldman", character_name: "Commissioner Gordon"},
+    {title: "The Dark Knight Rises", actor: "Tom Hardy", character_name: "Bane"},
+    {title: "The Dark Knight Rises", actor: "Joseph Gordon-Levitt", character_name: "John Blake"},
+    {title: "The Dark Knight Rises", actor: "Anne Hathaway", character_name: "Selina Kyle"}
+]
+
+for role in roles
+    movie = Movie.find_by(title: role[:title])
+    role[:movie_id] = movie[:id]
+    role.delete(:title)
+
+    actor = Actor.find_by(name: role[:actor])
+    role[:actor_id] = actor[:id]
+    role.delete(:actor)
+end
+
+roles = Role.insert_all(roles)
+# puts Role.all.inspect
 
 # Prints a header for the movies output
 puts "Movies"
@@ -84,7 +172,10 @@ puts "======"
 puts ""
 
 # Query the movies data and loop through the results to display the movies output.
-# TODO!
+for movie in Movie.all
+    studio = Studio.find_by(id: movie[:studio_id])
+    puts "-- #{movie[:title]}\t#{movie[:year_released]}\t#{movie[:rated]}\t#{studio[:name]}"
+end
 
 # Prints a header for the cast output
 puts ""
@@ -93,4 +184,8 @@ puts "========"
 puts ""
 
 # Query the cast data and loop through the results to display the cast output for each movie.
-# TODO!
+for role in Role.all
+    movie = Movie.find_by(id: role[:movie_id])
+    actor = Actor.find_by(id: role[:actor_id])
+    puts "-- #{movie[:title]}\t#{actor[:name]}\t#{role[:character_name]}"
+end
